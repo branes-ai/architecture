@@ -41,7 +41,7 @@ A folder's `README.md` is its introduction, `template.md` is skipped, and any ot
 ## How it is built
 
 - **[`sources.yaml`](sources.yaml)** lists the repos and the folders taken from each. Adding a repo is one line.
-- **[`scripts/collect.mjs`](scripts/collect.mjs)** clones each repo (blobless, `docs/` only) and checks every record: its title, its status, and every relative link and anchor. Then it writes the site's content: a page per record, the indexes (plans by status, decisions by repo, one page per repo), and the sidebar. A link between records becomes a link between pages, in any repo; a link to any other file goes to GitHub, at the commit the site was built from. Any error fails the build, naming the file and line.
+- **[`scripts/collect.mjs`](scripts/collect.mjs)** clones each repo (blobless, `docs/` only) and checks every record: its title, its status, and every relative link and anchor. Then it writes the site's content: a page per record, the indexes (plans by status, decisions by repo, one page per repo), and the sidebar. A link between records becomes a link between pages, in any repo; a link to any other file goes to GitHub, at the commit the site was built from. Any error fails the build, naming the file and line; the workflows run it with `--strict`, so a plan without a status is an error too.
 - **[`site/`](site/)** is the Starlight site.
 - **[`deploy.yml`](.github/workflows/deploy.yml)** builds and publishes it every hour, on a push to `main`, and by hand.
 
@@ -56,6 +56,8 @@ records:
   steps:
     - uses: actions/checkout@<sha>
     - uses: branes-ai/architecture/actions/check-records@<sha of this repo>
+      with:
+        strict: 'true'
 ```
 
 ## Working on it

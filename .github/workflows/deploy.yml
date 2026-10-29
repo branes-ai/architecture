@@ -46,7 +46,8 @@ jobs:
       - run: npm ci --no-audit --no-fund
         working-directory: site
       - name: Collect the records
-        run: node scripts/collect.mjs
+        # Strict: a plan without a status fails the build.
+        run: node scripts/collect.mjs --strict
       - name: Check that every record is published
         run: scripts/check-coverage.sh
       - name: Build the site
