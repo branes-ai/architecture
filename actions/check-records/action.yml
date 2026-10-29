@@ -1,0 +1,39 @@
+# Checks a repo's ADRs and plans as the architecture site's build does
+# (docs/plan/records-site): every plan has a valid front matter status, every
+# ADR a status block, and every relative link and anchor resolves. Failures
+# are annotations on the file and line.
+#
+# Use it after checking out the repo, pinned to a commit of this repo:
+#
+#   - uses: actions/checkout@<sha>
+#   - uses: branes-ai/architecture/actions/check-records@<sha>
+#
+# The folders checked are the repo's in sources.yaml, at that commit (adr and
+# plan when it is not listed). It sets up Node 22 for its own scripts.
+name: Check architecture records
+description: Checks the repo's ADRs and plans (status, titles, links) as the architecture site does.
+inputs:
+  path:
+    description: The repo's working tree, relative to the workspace.
+    default: '.'
+  strict:
+    description: "'true' makes a plan without a status an error, not a warning."
+    default: 'false'
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38  # v6.5.0
+      with:
+        node-version: 22
+    - name: Install the checker
+      shell: bash
+      run: npm ci --omit=dev --no-audit --no-fund --prefix "$GITHUB_ACTION_PATH/../.."
+    - name: Check the records
+      shell: bash
+      env:
+        RECORDS_PATH: ${{ inputs.path }}
+        RECORDS_STRICT: ${{ inputs.strict }}
+      run: |
+        args=(--dir "$RECORDS_PATH")
+        [ "$RECORDS_STRICT" = true ] && args+=(--strict)
+        node "$GITHUB_ACTION_PATH/../../scripts/check-records.mjs" "${args[@]}"
