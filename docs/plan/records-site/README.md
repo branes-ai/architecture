@@ -140,7 +140,7 @@ In anatomy, racing-drone and cortex (reflex and synapse have no ADRs or plans):
 |---|---|---|
 | **A** | architecture | <ul><li>`sources.yaml`, `scripts/collect.mjs`, the site and the deploy workflow</li><li>the `check-records` action</li><li>this plan, as `docs/plan/records-site/README.md`, with its own front matter</li><li>a README</li></ul> While the plans have no front matter yet, a missing status shows as **unknown** on the indexes, with a build warning instead of an error. |
 | **B1–B3** | anatomy, racing-drone, cortex | <ul><li>front matter on each plan, with the statuses above</li><li>the user site skips the records</li><li>CI calls the `check-records` action</li></ul> The anatomy PR also closes anatomy#10. |
-| **C** | architecture | Strict mode: a missing status is an error. Both workflows run `collect.mjs --strict`. |
+| **C** | architecture | Strict mode: a missing status or a prose `Status:` line is an error. Both workflows run `collect.mjs --strict`. |
 
 ## Departures from the approved plan
 
@@ -163,7 +163,7 @@ In anatomy, racing-drone and cortex (reflex and synapse have no ADRs or plans):
 ## Results
 
 - **After B1–B3:** the strict check in anatomy, racing-drone and cortex has 0 errors; the user sites have no ADR or plan pages, and their old record URLs redirect to the architecture site (anatomy, racing-drone; cortex's site never published them).
-- **After C:** `collect.mjs --strict` over the 11 repos: 46 pages (43 records), 0 warnings. No record shows unknown.
+- **After C:** `collect.mjs --strict` over the 11 repos: 46 pages (43 records), 0 warnings. No record shows unknown. The 43 are 25 ADRs and 18 plans: acceptance 1's 17, counted before PR A added this plan, and this plan.
 
 ## Risks
 
