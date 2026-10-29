@@ -1,10 +1,10 @@
 ---
-status: in-progress
+status: complete
 issue: branes-ai/architecture#1
 ---
 # Plan: one site for the stack's ADRs and plans
 
-Approved 2026-10-29 ([architecture#1](https://github.com/branes-ai/architecture/issues/1)). PR A builds the site; B1–B3 and C are to come.
+Approved 2026-10-29 ([architecture#1](https://github.com/branes-ai/architecture/issues/1)). Implemented in [architecture#2](https://github.com/branes-ai/architecture/pull/2) (A), [anatomy#14](https://github.com/branes-ai/anatomy/pull/14) (B1), [racing-drone#74](https://github.com/branes-ai/racing-drone/pull/74) (B2), [cortex#525](https://github.com/branes-ai/cortex/pull/525) (B3) and [architecture#7](https://github.com/branes-ai/architecture/pull/7) (C).
 
 ## Goal
 
@@ -140,7 +140,7 @@ In anatomy, racing-drone and cortex (reflex and synapse have no ADRs or plans):
 |---|---|---|
 | **A** | architecture | <ul><li>`sources.yaml`, `scripts/collect.mjs`, the site and the deploy workflow</li><li>the `check-records` action</li><li>this plan, as `docs/plan/records-site/README.md`, with its own front matter</li><li>a README</li></ul> While the plans have no front matter yet, a missing status shows as **unknown** on the indexes, with a build warning instead of an error. |
 | **B1–B3** | anatomy, racing-drone, cortex | <ul><li>front matter on each plan, with the statuses above</li><li>the user site skips the records</li><li>CI calls the `check-records` action</li></ul> The anatomy PR also closes anatomy#10. |
-| **C** | architecture | Strict mode: a missing status is an error. |
+| **C** | architecture | Strict mode: a missing status or a prose `Status:` line is an error. Both workflows run `collect.mjs --strict`. |
 
 ## Departures from the approved plan
 
@@ -159,6 +159,11 @@ In anatomy, racing-drone and cortex (reflex and synapse have no ADRs or plans):
 4. After B1–B3, the user sites of anatomy, racing-drone and cortex have no ADR or plan pages, and every link to one reaches the architecture site.
 5. After C, no record shows unknown.
 6. CI is green, and commitlint is clean.
+
+## Results
+
+- **After B1–B3:** the strict check in anatomy, racing-drone and cortex has 0 errors; the user sites have no ADR or plan pages, and their old record URLs redirect to the architecture site (anatomy, racing-drone; cortex's site never published them).
+- **After C:** `collect.mjs --strict` over the 11 repos: 46 pages (43 records), 0 warnings. No record shows unknown. The 43 are 25 ADRs and 18 plans: acceptance 1's 17, counted before PR A added this plan, and this plan.
 
 ## Risks
 
