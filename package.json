@@ -1,0 +1,18 @@
+{
+  "name": "architecture-records",
+  "private": true,
+  "type": "module",
+  "description": "Collects the ADRs and plans of the Branes.AI stack's repos into one site, and checks them.",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "collect": "node scripts/collect.mjs",
+    "check": "node scripts/check-records.mjs",
+    "build": "node scripts/collect.mjs && npm --prefix site run build",
+    "preview": "node scripts/collect.mjs --local-root .. && npm --prefix site run dev"
+  },
+  "dependencies": {
+    "github-slugger": "^2.0.0",
+    "yaml": "^2.8.1"
+  }
+}
