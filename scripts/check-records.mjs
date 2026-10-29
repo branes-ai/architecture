@@ -29,7 +29,7 @@ function main() {
     else if (a === '--repo' && i + 1 < argv.length) name = argv[++i];
     else throw new Error(`unknown argument ${a}`);
   }
-  name ??= process.env.GITHUB_REPOSITORY?.split('/')[1] ?? path.basename(dir);
+  name ??= process.env.GITHUB_REPOSITORY?.split('/')[1] || path.basename(dir);
 
   const listed = readSources(path.join(REPO_DIR, 'sources.yaml')).find((r) => r.name === name);
   const folders = listed?.folders ?? ['adr', 'plan'];

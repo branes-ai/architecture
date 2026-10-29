@@ -13,7 +13,7 @@ const SCRIPTS = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..',
 const node = (script, args, env = {}) =>
   spawnSync(process.execPath, [path.join(SCRIPTS, script), ...args], {
     encoding: 'utf8',
-    env: { ...process.env, GITHUB_ACTIONS: '', ...env },
+    env: { ...process.env, GITHUB_ACTIONS: '', GITHUB_REPOSITORY: '', ...env },
   });
 
 function fixture() {
