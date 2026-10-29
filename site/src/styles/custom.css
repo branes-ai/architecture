@@ -1,0 +1,64 @@
+/* Architecture records theme: dark slate with a teal accent. */
+
+:root {
+  --sl-color-accent-low: #123a38;
+  --sl-color-accent: #4fd1c5;
+  --sl-color-accent-high: #c8f5f0;
+
+  --sl-color-bg: #12151b;
+  --sl-color-bg-nav: #191d25;
+  --sl-color-bg-sidebar: #191d25;
+
+  --rec-draft: #8b93a1;
+  --rec-ready: #5aa9ff;
+  --rec-in-progress: #f0b429;
+  --rec-complete: #3fbf7f;
+  --rec-unknown: #f2545b;
+}
+
+/* Light mode keeps the same accent, darkened for contrast. */
+:root[data-theme='light'] {
+  --sl-color-accent-low: #d5f5f1;
+  --sl-color-accent: #0f766e;
+  --sl-color-accent-high: #0b3d3a;
+  --sl-color-bg: #ffffff;
+  --sl-color-bg-nav: #f7f7f8;
+  --sl-color-bg-sidebar: #f7f7f8;
+
+  --rec-draft: #5b6472;
+  --rec-ready: #1d63c4;
+  --rec-in-progress: #9a6700;
+  --rec-complete: #18794e;
+  --rec-unknown: #c62828;
+}
+
+/* Wide tables scroll inside their own box instead of widening the page at
+   phone width. */
+.sl-markdown-content table {
+  display: block;
+  overflow-x: auto;
+}
+
+/* The line under a record's title: its status, date, issue and source. */
+.rec-meta {
+  font-size: var(--sl-text-sm);
+  color: var(--sl-color-gray-3);
+}
+
+.rec-status {
+  display: inline-block;
+  padding: 0.05rem 0.55rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.rec-status--draft { color: var(--rec-draft); }
+.rec-status--ready { color: var(--rec-ready); }
+.rec-status--in-progress { color: var(--rec-in-progress); }
+.rec-status--complete { color: var(--rec-complete); }
+.rec-status--unknown { color: var(--rec-unknown); }
+.rec-status--adr-proposed { color: var(--rec-ready); }
+.rec-status--adr-accepted { color: var(--rec-complete); }
+.rec-status--adr-superseded,
+.rec-status--adr-deprecated { color: var(--rec-draft); }

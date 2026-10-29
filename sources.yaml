@@ -1,0 +1,15 @@
+# The repos whose records the site collects, and the folders under docs/ it
+# takes from each (docs/plan/records-site). A repo with none of its folders
+# yet contributes nothing until it has one. Adding a repo is one line here.
+repos:
+  - { name: architecture,      folders: [adr, plan] }   # this repo's own records
+  - { name: cortex,            folders: [adr, plan] }
+  - { name: synapse,           folders: [adr, plan] }
+  - { name: reflex,            folders: [adr, plan] }
+  - { name: anatomy,           folders: [adr, plan] }
+  - { name: racing-drone,      folders: [adr, plan] }
+  - { name: scout-drone,       folders: [adr, plan] }
+  - { name: isr-drone,         folders: [adr, plan] }
+  - { name: nano-drone,        folders: [adr, plan] }
+  - { name: interceptor-drone, folders: [adr, plan] }
+  - { name: counter-uas,       folders: [adr, plan] }
