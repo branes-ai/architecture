@@ -137,7 +137,7 @@ Two PRs.
    - the animation plan is on the architecture site, with status `in-progress`;
    - every link from a reflex page to a record reaches the architecture site.
 7. **CI is green, and commitlint is clean,** in every repo touched.
-8. **One folder convention** (added with the amendment, before E1–E3): after A2, no repo in `sources.yaml` has a `docs/plans/` or `docs/adrs/` folder, no file in the three repos names `docs/plans/`, and `check-records --folders plans` fails with an error naming `plan`.
+8. **One folder convention** (added with the amendment, before E1–E3): after A2, no repo in `sources.yaml` has a `docs/plans/` or `docs/adrs/` folder, no file in the three repos names `docs/plans/`, and the collector rejects the plural names: `plans` and `adrs`, each in `sources.yaml` and in `check-records --folders`, fail with an error naming `plan` or `adr`. A test covers each of the four.
 
 ## Risks
 
