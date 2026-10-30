@@ -133,9 +133,9 @@ test('plans/ and adrs/: their records are plans and ADRs, checked as such', () =
 });
 
 test('a byte-order mark before the front matter or the title is ignored', () => {
-  const r = build({ one: { 'docs/plan/p.md': '\uFEFF' + plan('P'), 'docs/plan/q.md': '\uFEFF---\nstatus: draft\n---\n# Q\n' } }, { strict: true });
+  const r = build({ one: { 'docs/plan/p.md': '\uFEFF' + plan('P'), 'docs/adr/0001-x.md': '\uFEFF' + adr('X') } }, { strict: true });
   assert.deepEqual(errorsOf(r), []);
-  assert.deepEqual(r.pages.map((p) => [p.title, p.meta.status]), [['P', 'in-progress'], ['Q', 'draft']]);
+  assert.deepEqual(r.pages.map((p) => [p.title, p.meta.status]), [['X', 'Accepted'], ['P', 'in-progress']]);
 });
 
 test('a plan with no status: a warning, or an error when strict', () => {

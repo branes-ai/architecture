@@ -143,7 +143,7 @@ export function writeSite(siteSrc, { pages, bodies, copies, sources, folders }) 
     'index.md',
     frontMatter('Architecture records', null) +
       'The decisions (ADRs) and plans of every repo of the Branes.AI stack, with their status. ' +
-      'Each record lives in its repo, under `docs/adr/` or `docs/plan/` (or `docs/plans/`), and is edited there; this site gathers them every hour.\n\n' +
+      'Each record lives in its repo, under `docs/adr/` or `docs/plan/` (or `docs/adrs/`, `docs/plans/`), and is edited there; this site gathers them every hour.\n\n' +
       '- [Plans](/plans/): every plan, by status.\n' +
       '- [Decisions](/decisions/): every ADR, by repo.\n\n' +
       '## By repo\n\n' +
