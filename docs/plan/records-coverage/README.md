@@ -159,7 +159,7 @@ Two PRs.
 2. `collect.mjs --strict`: 126 pages (120 records) from 15 repos. `check-coverage.sh` matches every repo, the three new ones at 3, 57 and 15. reflex has 1 (its docs-site plan); R2's 2 are to come.
 3. The strict build is green, with 0 warnings, and no record shows unknown. The site builds, and `check-site-links.mjs` finds 0 broken internal links.
 4. The evidence tables are in auto-drone#24, graphs#353 and embodied-ai-architect#240.
-5. Met by reflex#51's check, above. Its two changed pages differ by path updates, not only the edit link.
+5. Not met as written. reflex#51's check, above, found every route kept and 25 of the 27 pages byte-identical, but the other 2 differ by updated paths, where this criterion allows only the edit link.
 6. With R2.
 7. Green in every repo touched so far.
 8. No repo in `sources.yaml` has a `docs/plans/` or `docs/adrs/` folder, and no file in the three repos names either path. `plans` and `adrs` fail in `sources.yaml` and in `check-records --folders`, each with an error naming `plan` or `adr`, with a test for each of the four.
