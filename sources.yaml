@@ -3,6 +3,7 @@
 # yet contributes nothing until it has one. Adding a repo is one line here.
 repos:
   - { name: architecture,      folders: [adr, plan] }   # this repo's own records
+  - { name: docs-kit,          folders: [adr, plan] }   # the shared docs-site generator
   - { name: cortex,            folders: [adr, plan] }
   - { name: synapse,           folders: [adr, plan] }
   - { name: reflex,            folders: [adr, plan] }
