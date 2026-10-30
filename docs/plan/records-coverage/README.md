@@ -4,7 +4,7 @@ issue: branes-ai/architecture#8
 ---
 # Plan: every repo's records on the site, and checked in its CI
 
-Approved 2026-10-29 ([architecture#8](https://github.com/branes-ai/architecture/issues/8)). A1 is this plan's first PR; the others are to come.
+Approved 2026-10-29 ([architecture#8](https://github.com/branes-ai/architecture/issues/8)). Amended the same day: the three repos with `docs/plans/` rename it to `docs/plan/`, so every repo uses the singular names (see [One folder convention](#one-folder-convention)). A1 merged as [#9](https://github.com/branes-ai/architecture/pull/9); the others are to come.
 
 Follows the [records-site plan](../records-site/README.md), which published the ADRs and plans of the stack repos and checked them in anatomy, racing-drone and cortex.
 
@@ -16,6 +16,7 @@ Follows the [records-site plan](../records-site/README.md), which published the 
    - `adr/` and `plan/` go to the architecture site;
    - `sessions/` is published nowhere;
    - `assessments/` and `benchmarks/` are published on the reflex site.
+4. **One folder convention:** every repo keeps its records in `docs/adr/` and `docs/plan/`.
 
 ## What the survey found
 
@@ -49,9 +50,20 @@ Of the 41 source repos in branes-ai, these have ADRs or plans as files. The scan
 
 ## The changes
 
+### One folder convention
+
+The records folders are `docs/adr/` and `docs/plan/`, singular, in every repo:
+- **Most repos already use them:** anatomy, architecture, cortex, docs-kit, racing-drone and synapse, and reflex's new folders (R2). Only auto-drone, embodied-ai-architect and graphs use `docs/plans/`, and none of them has an ADR folder.
+- **So does everything else:** cortex's ADR template, the records job, the site's routes (`/cortex/adr/...`) and this plan.
+- **One convention keeps the site consistent.** Without it, `/graphs/plans/x/` would sit next to `/cortex/plan/y/`, and a link's author would have to know which repo uses which.
+
+The three repos rename `docs/plans/` to `docs/plan/` in E1–E3, which edit every plan anyway. A1 had taught the collector the plural names; A2 takes that out again (below).
+
 ### The collector (architecture)
 
-- **Folder names:** a folder named `plans` holds plans and one named `adrs` holds ADRs. The route keeps the folder's name (`/graphs/plans/<name>/`), so it still follows from the path.
+A1, merged as [#9](https://github.com/branes-ai/architecture/pull/9):
+
+- **Folder names:** a folder named `plans` holds plans and one named `adrs` holds ADRs. The route keeps the folder's name (`/graphs/plans/<name>/`), so it still follows from the path. A2 replaces this: `sources.yaml` and `--folders` reject `plans` and `adrs` with an error that names `plan` and `adr`.
 - **Byte-order mark:** stripped before parsing.
 - **The `check-records` action** gets a `folders` input. It overrides `sources.yaml` for a repo whose CI runs the check before the repo is listed.
 - **Tests** cover each change.
@@ -65,17 +77,19 @@ Each repo gets the same CI job as anatomy (`Architecture records`, pinned to the
 ### auto-drone, embodied-ai-architect, graphs
 
 One PR per repo:
+- **Rename:** `docs/plans/` becomes `docs/plan/`, in a commit of its own, so git records each file as renamed.
+- **References:** every mention of the old path follows: links between plans, code and workflow comments, `.claude/decisions/*.yaml`, CHANGELOG entries, and any instruction to tools or agents that names `docs/plans/`.
 - **Front matter:** each plan gets front matter. The status comes from its own text, its commit history, and the issues and PRs it names. It's `draft` where the evidence doesn't show approval.
   - Any prose `Status:` line goes, as in the stack repos.
   - A plan with a date line keeps it.
 - **The PR body** has a table: plan, status, evidence. Your review of that table is the check on each inferred status.
 - **Missing titles:** the files with no `# ` title get one.
-- **Notes inside `plans/`:** files that aren't plans (the three `crew-ai/` notes) stay where they are, published as attachments, with no status.
-- **CI:** the records job with `folders: plans`.
+- **Notes inside `plan/`:** files that aren't plans (the three `crew-ai/` notes) stay where they are, published as attachments, with no status.
+- **CI:** the records job, with the default folders.
 
-Then `sources.yaml` adds the three repos with `folders: [plans]`.
+Then `sources.yaml` adds the three repos with `folders: [adr, plan]`, like the others.
 
-Out of scope: those repos' own docs sites. None publishes `docs/plans/`.
+Out of scope: those repos' own docs sites. None publishes `docs/plans/`; each PR checks that its site's configuration doesn't name the old path.
 
 ### reflex
 
@@ -102,13 +116,13 @@ Two PRs.
 
 | PR | Repo | Content |
 |---|---|---|
-| **A1** | architecture | The `plans`/`adrs` folders, the byte-order mark, the action's `folders` input, tests; this plan |
+| **A1** | architecture | The `plans`/`adrs` folders, the byte-order mark, the action's `folders` input, tests; this plan. Merged as #9 |
 | **S** | synapse | The records job |
 | **D1–D5** | the five drone repos | `records.yml` |
-| **E1–E3** | auto-drone, embodied-ai-architect, graphs | Front matter with the evidence table, titles, the records job |
+| **E1–E3** | auto-drone, embodied-ai-architect, graphs | `docs/plans/` renamed to `docs/plan/`; front matter with the evidence table, titles, the records job |
 | **R1** | reflex | `docs/` is the source, generated by `sync-docs.mjs` |
 | **R2** | reflex | The new folders; the animation plan and assessment; the records job |
-| **A2** | architecture | `sources.yaml` adds the three repos; this plan is complete |
+| **A2** | architecture | `sources.yaml` adds the three repos; the plural folder names are rejected; this plan is complete |
 
 ## Acceptance (stated before any test is run)
 
@@ -123,9 +137,11 @@ Two PRs.
    - the animation plan is on the architecture site, with status `in-progress`;
    - every link from a reflex page to a record reaches the architecture site.
 7. **CI is green, and commitlint is clean,** in every repo touched.
+8. **One folder convention** (added with the amendment, before E1–E3): after A2, no repo in `sources.yaml` has a `docs/plans/` or `docs/adrs/` folder, no file in the three repos names `docs/plans/`, and the collector rejects the plural names: `plans` and `adrs`, each in `sources.yaml` and in `check-records --folders`, fail with an error naming `plan` or `adr`. A test covers each of the four.
 
 ## Risks
 
 - **An inferred status can be wrong.** The evidence table makes each one reviewable, and changing a status later is a one-line edit.
-- **Repos outside the stack (embodied-ai-architect, graphs, auto-drone) have their own maintainers.** Their PRs touch only front matter, four titles and one CI job.
+- **Repos outside the stack (embodied-ai-architect, graphs, auto-drone) have their own maintainers.** Their PRs rename one folder and otherwise touch only front matter, the references to the old path, three titles and one CI job.
+- **The rename breaks links from outside the repos.** GitHub doesn't redirect a renamed file, so a `blob/main/docs/plans/...` link in an old issue, PR or other repo returns 404. Links inside the repos are updated; outside ones can't be, and that's accepted for one convention.
 - **R1 moves 27 files.** Acceptance 5 checks that the published site is unchanged.
