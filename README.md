@@ -60,6 +60,8 @@ records:
         strict: 'true'
 ```
 
+A repo not yet in `sources.yaml` names its folders: `folders: plans`. A `plans/` folder holds plans and an `adrs/` folder ADRs, as `plan/` and `adr/` do.
+
 ## Working on it
 
 ```bash

@@ -14,6 +14,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { PLAN_STATUSES } from './parse.mjs';
+import { kindOf } from './repo.mjs';
 
 export const STATUS_LABEL = {
   'in-progress': 'In progress',
@@ -115,10 +116,14 @@ export function writeSite(siteSrc, { pages, bodies, copies, sources, folders }) 
   }
 
   const repos = [...sources.keys()];
-  const plansOf = (repo) => pages.filter((p) => p.kind === 'plan' && (repo === undefined || p.repo === repo));
-  const adrsOf = (repo) => pages.filter((p) => p.kind === 'adr' && p.repo === repo);
+  // A repo's plans or ADRs, of every folder of that kind or of one folder.
+  const ofKind = (kind, repo, folder) =>
+    pages.filter((p) => p.kind === kind && (repo === undefined || p.repo === repo) && (folder === undefined || p.folder === folder));
+  const plansOf = (repo, folder) => ofKind('plan', repo, folder);
+  const adrsOf = (repo) => ofKind('adr', repo);
   const introOf = (repo, folder) => pages.find((p) => p.repo === repo && p.kind === 'intro' && p.folder === folder);
-  const otherOf = (repo, folder) => pages.filter((p) => p.repo === repo && p.folder === folder && p.kind === folder);
+  const otherOf = (repo, folder) => ofKind(kindOf(folder), repo, folder);
+  const headingOf = (folder) => ({ adr: 'Decisions', plan: 'Plans' })[kindOf(folder)] ?? folder;
 
   // The overview.
   const allPlans = plansOf();
@@ -138,7 +143,7 @@ export function writeSite(siteSrc, { pages, bodies, copies, sources, folders }) 
     'index.md',
     frontMatter('Architecture records', null) +
       'The decisions (ADRs) and plans of every repo of the Branes.AI stack, with their status. ' +
-      'Each record lives in its repo, under `docs/adr/` or `docs/plan/`, and is edited there; this site gathers them every hour.\n\n' +
+      'Each record lives in its repo, under `docs/adr/` or `docs/plan/` (or `docs/adrs/`, `docs/plans/`), and is edited there; this site gathers them every hour.\n\n' +
       '- [Plans](/plans/): every plan, by status.\n' +
       '- [Decisions](/decisions/): every ADR, by repo.\n\n' +
       '## By repo\n\n' +
@@ -178,16 +183,15 @@ export function writeSite(siteSrc, { pages, bodies, copies, sources, folders }) 
     let text = frontMatter(repo, null) + `The records of [branes-ai/${repo}](${s.github}).\n\n`;
     for (const folder of folders.get(repo)) {
       const intro = introOf(repo, folder);
-      const records = folder === 'plan' ? null : otherOf(repo, folder);
-      const heading = folder === 'adr' ? 'Decisions' : folder === 'plan' ? 'Plans' : folder;
-      if (!intro && (folder === 'plan' ? plansOf(repo).length === 0 : records.length === 0)) continue;
-      text += `## ${heading}\n\n`;
+      const records = otherOf(repo, folder);
+      if (!intro && records.length === 0) continue;
+      text += `## ${headingOf(folder)}\n\n`;
       if (intro) text += `${link(intro.title, intro.route)}\n\n`;
-      if (folder === 'plan') {
-        for (const [st, list] of planStatusOrder(plansOf(repo))) {
+      if (kindOf(folder) === 'plan') {
+        for (const [st, list] of planStatusOrder(records)) {
           if (list.length) text += `### ${STATUS_LABEL[st]}\n\n${planTable(list, { withRepo: false })}\n`;
         }
-      } else if (folder === 'adr') {
+      } else if (kindOf(folder) === 'adr') {
         text += adrTable(records) + '\n';
       } else {
         text += records.map((r) => `- ${link(r.title, r.route)}`).join('\n') + '\n\n';
@@ -213,13 +217,12 @@ export function writeSite(siteSrc, { pages, bodies, copies, sources, folders }) 
     const items = [{ label: 'Overview', link: `/${repo}/` }];
     for (const folder of folders.get(repo)) {
       const intro = introOf(repo, folder);
-      const records = folder === 'plan'
-        ? planStatusOrder(plansOf(repo)).flatMap(([, list]) => list)
+      const records = kindOf(folder) === 'plan'
+        ? planStatusOrder(plansOf(repo, folder)).flatMap(([, list]) => list)
         : otherOf(repo, folder);
       if (!intro && records.length === 0) continue;
-      const label = folder === 'adr' ? 'Decisions' : folder === 'plan' ? 'Plans' : folder;
       items.push({
-        label,
+        label: headingOf(folder),
         collapsed: true,
         items: [...(intro ? [{ label: 'About', link: intro.route }] : []), ...records.map(item)],
       });

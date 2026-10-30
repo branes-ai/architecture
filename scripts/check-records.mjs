@@ -3,16 +3,17 @@
 // actions/check-records action, so a bad record fails its PR.
 //
 //   node scripts/check-records.mjs [--dir <repo>] [--repo <name>] [--strict]
+//                                  [--folders <a,b>]
 //
-// The folders are the repo's in sources.yaml, or adr and plan when it is not
-// listed. Links to another repo's records are not checked here: the site's
+// The folders are --folders, else the repo's in sources.yaml, else adr and
+// plan. --folders lets a repo check its records before it is listed. Links to another repo's records are not checked here: the site's
 // build checks them.
 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkRoutes, loadPages, openSource } from './lib/repo.mjs';
 import { indexPages, rewriteBody } from './lib/links.mjs';
-import { readSources } from './lib/sources.mjs';
+import { FOLDER, readSources } from './lib/sources.mjs';
 import { report } from './lib/report.mjs';
 
 const REPO_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -22,17 +23,21 @@ function main() {
   let dir = process.cwd();
   let name = null;
   let strict = false;
+  let only = null;
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--strict') strict = true;
     else if (a === '--dir' && i + 1 < argv.length) dir = path.resolve(argv[++i]);
     else if (a === '--repo' && i + 1 < argv.length) name = argv[++i];
+    else if (a === '--folders' && i + 1 < argv.length) only = argv[++i].split(/[\s,]+/).filter(Boolean);
     else throw new Error(`unknown argument ${a}`);
   }
   name ??= process.env.GITHUB_REPOSITORY?.split('/')[1] || path.basename(dir);
 
   const listed = readSources(path.join(REPO_DIR, 'sources.yaml')).find((r) => r.name === name);
-  const folders = listed?.folders ?? ['adr', 'plan'];
+  const folders = only ?? listed?.folders ?? ['adr', 'plan'];
+  const bad = folders.filter((f) => !FOLDER.test(f));
+  if (folders.length === 0 || bad.length) throw new Error(`--folders: not folder names: ${bad.join(', ') || '(none)'}`);
   const source = openSource(name, dir);
   const { pages, diagnostics } = loadPages(source, folders, { strict });
   checkRoutes(pages, diagnostics);

@@ -87,6 +87,34 @@ test('check-records: passes a good repo, fails a bad one with annotations', () =
   assert.match(strict.stdout, /::error file=docs\/plan\/p\.md,line=1::plan has no front matter status/);
 });
 
+test('check-records --folders: checks the named folders of an unlisted repo', () => {
+  const root = tempDir();
+  const dir = makeRepo(root, 'four', { 'docs/plans/p.md': plan('Plan P'), 'docs/plans/q.md': '# Q\n', 'docs/plan/ignored.md': '# not checked\n' });
+  const r = node('check-records.mjs', ['--dir', dir, '--strict', '--folders', 'plans']);
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /four\/docs\/plans\/q\.md:1: error: plan has no front matter status/);
+  assert.match(r.stdout, /check-records: four: 2 records in docs\/plans\/; 1 error\(s\), 0 warning\(s\)/);
+  const bad = node('check-records.mjs', ['--dir', dir, '--folders', '../x']);
+  assert.equal(bad.status, 1);
+  assert.match(bad.stderr, /--folders: not folder names: \.\.\/x/);
+});
+
+test('collect: a plans/ folder is listed under Plans, with its statuses', () => {
+  const root = tempDir();
+  makeRepo(root, 'five', { 'docs/plans/p.md': plan('Plan P', '', 'complete') });
+  const sources = path.join(root, 'sources.yaml');
+  fs.writeFileSync(sources, 'repos:\n  - { name: five, folders: [plans] }\n');
+  const site = path.join(root, 'site-src');
+  const r = node('collect.mjs', ['--local-root', root, '--sources', sources, '--site', site, '--strict']);
+  assert.equal(r.status, 0, r.stderr);
+  const sidebar = JSON.parse(fs.readFileSync(path.join(site, 'generated', 'sidebar.json'), 'utf8'));
+  assert.deepEqual(sidebar[3].items[1].items.map((i) => [i.label, i.link, i.badge.text]), [['Plan P', '/five/plans/p/', 'Complete']]);
+  const repoPage = fs.readFileSync(path.join(site, 'content', 'docs', 'five', 'index.md'), 'utf8');
+  assert.match(repoPage, /## Plans\n\n### Complete\n/);
+  const plans = fs.readFileSync(path.join(site, 'content', 'docs', 'plans.md'), 'utf8');
+  assert.match(plans, /## Complete \(1\)/);
+});
+
 test('sources.yaml: a repo listed twice, or with no folders, is an error', () => {
   const { root, site } = fixture();
   const sources = path.join(root, 'bad-sources.yaml');

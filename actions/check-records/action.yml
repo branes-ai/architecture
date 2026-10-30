@@ -8,8 +8,9 @@
 #   - uses: actions/checkout@<sha>
 #   - uses: branes-ai/architecture/actions/check-records@<sha>
 #
-# The folders checked are the repo's in sources.yaml, at that commit (adr and
-# plan when it is not listed). It sets up Node 22 for its own scripts.
+# The folders checked are `folders`, else the repo's in sources.yaml at that
+# commit, else adr and plan. `folders` lets a repo check its records before it
+# is listed (for example `folders: plans`). It sets up Node 22 for its own scripts.
 name: Check architecture records
 description: Checks the repo's ADRs and plans (status, titles, links) as the architecture site does.
 inputs:
@@ -19,6 +20,9 @@ inputs:
   strict:
     description: "'true' makes a plan without a status an error, not a warning."
     default: 'false'
+  folders:
+    description: The folders under docs/ to check, comma-separated. Empty means the repo's in sources.yaml.
+    default: ''
 runs:
   using: composite
   steps:
@@ -33,7 +37,9 @@ runs:
       env:
         RECORDS_PATH: ${{ inputs.path }}
         RECORDS_STRICT: ${{ inputs.strict }}
+        RECORDS_FOLDERS: ${{ inputs.folders }}
       run: |
         args=(--dir "$RECORDS_PATH")
         [ "$RECORDS_STRICT" = true ] && args+=(--strict)
+        [ -n "$RECORDS_FOLDERS" ] && args+=(--folders "$RECORDS_FOLDERS")
         node "$GITHUB_ACTION_PATH/../../scripts/check-records.mjs" "${args[@]}"

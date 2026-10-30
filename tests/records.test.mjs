@@ -12,13 +12,13 @@ const FOLDERS = ['adr', 'plan'];
 
 /** Loads and rewrites the repos { name: files }; returns the pages, their
  *  bodies by route, the diagnostics and the copies. */
-function build(repos, { strict = false } = {}) {
+function build(repos, { strict = false, folderList = FOLDERS } = {}) {
   const root = tempDir();
   const sources = new Map();
   const folders = new Map();
   for (const [name, files] of Object.entries(repos)) {
     sources.set(name, openSource(name, makeRepo(root, name, files)));
-    folders.set(name, FOLDERS);
+    folders.set(name, folderList);
   }
   const pages = [];
   const diagnostics = [];
@@ -108,6 +108,34 @@ test('links: to records, files, folders, images, and other repos', () => {
   }
   assert.ok(!out.includes('# P'), 'the title is removed');
   assert.deepEqual(r.copies, [{ repo: 'one', repoRel: 'docs/plan/p/fig.svg' }]);
+});
+
+test('plans/ and adrs/: their records are plans and ADRs, checked as such', () => {
+  const files = {
+    'docs/plans/README.md': '# About the plans\n',
+    'docs/plans/p.md': plan('Plan P', '', 'ready'),
+    'docs/plans/notes/a.md': '# A note\n',
+    'docs/plans/q.md': '# Q\n',
+    'docs/adrs/0001-x.md': adr('X'),
+  };
+  const r = build({ one: files }, { strict: true, folderList: ['adrs', 'plans'] });
+  assert.deepEqual(
+    r.pages.map((p) => [p.route, p.kind, p.meta?.status ?? null]),
+    [
+      ['/one/adrs/0001-x/', 'adr', 'Accepted'],
+      ['/one/plans/', 'intro', null],
+      ['/one/plans/notes/a/', 'attachment', null],
+      ['/one/plans/p/', 'plan', 'ready'],
+      ['/one/plans/q/', 'plan', 'unknown'],
+    ],
+  );
+  assert.deepEqual(errorsOf(r), ['docs/plans/q.md:1: plan has no front matter status (draft, ready, in-progress or complete)']);
+});
+
+test('a byte-order mark before the front matter or the title is ignored', () => {
+  const r = build({ one: { 'docs/plan/p.md': '\uFEFF' + plan('P'), 'docs/adr/0001-x.md': '\uFEFF' + adr('X') } }, { strict: true });
+  assert.deepEqual(errorsOf(r), []);
+  assert.deepEqual(r.pages.map((p) => [p.title, p.meta.status]), [['X', 'Accepted'], ['P', 'in-progress']]);
 });
 
 test('a plan with no status: a warning, or an error when strict', () => {
