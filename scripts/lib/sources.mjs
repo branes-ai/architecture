@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import { parse } from 'yaml';
 
 const NAME = /^[A-Za-z0-9_.-]+$/;
-const FOLDER = /^[a-z0-9][a-z0-9-]*$/;
+export const FOLDER = /^[a-z0-9][a-z0-9-]*$/;
 
 /** Reads and checks sources.yaml. Returns [{ name, folders }], in file order;
  *  throws with every problem found. */
