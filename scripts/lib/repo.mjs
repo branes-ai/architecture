@@ -77,11 +77,6 @@ export function openSource(name, root) {
   return { name, root, sha, files, dirs, dateOf, github: `https://github.com/branes-ai/${name}` };
 }
 
-/** The kind of a folder's records: `plans/` holds plans and `adrs/` ADRs, as
- *  `plan/` and `adr/` do; any other folder's records are of its own kind. */
-const RECORD_KIND = { adr: 'adr', adrs: 'adr', plan: 'plan', plans: 'plan' };
-export const kindOf = (folder) => RECORD_KIND[folder] ?? folder;
-
 /**
  * What a file under docs/<folder>/ is:
  *   'intro'      docs/<folder>/README.md, the folder's own introduction
@@ -103,7 +98,7 @@ export function classify(relInFolder) {
  * folder, parsed and checked. Returns { pages, diagnostics }.
  *
  * A page: { repo, folder, kind, docsRel, repoRel, route, doc, title, meta,
- * date }. kind is the folder's record kind (kindOf) for records, else
+ * date }. kind is the folder's name (adr, plan) for records, else
  * 'intro' or 'attachment'. meta is the plan's or ADR's status (null for other pages).
  *
  * A diagnostic: { level: 'error' | 'warning', file, line, msg }, file being
@@ -130,7 +125,7 @@ export function loadPages(source, folders, { strict = false } = {}) {
       const text = fs.readFileSync(abs, 'utf8').replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
       const doc = parseDoc(text);
       const docsRel = repoRel.slice('docs/'.length);
-      const kind = cls === 'record' ? kindOf(folder) : cls;
+      const kind = cls === 'record' ? folder : cls;
       const page = { repo: source.name, folder, kind, docsRel, repoRel, route: routeOf(source.name, docsRel), doc, title: doc.title, meta: null, date: null };
       if (doc.title === null) report('error', repoRel, doc.offset + 1, 'no "# " title heading');
       if (kind === 'plan') {

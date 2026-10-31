@@ -1,10 +1,10 @@
 ---
-status: ready
+status: in-progress
 issue: branes-ai/architecture#8
 ---
 # Plan: every repo's records on the site, and checked in its CI
 
-Approved 2026-10-29 ([architecture#8](https://github.com/branes-ai/architecture/issues/8)). Amended the same day: the three repos with `docs/plans/` rename it to `docs/plan/`, so every repo uses the singular names (see [One folder convention](#one-folder-convention)). A1 merged as [#9](https://github.com/branes-ai/architecture/pull/9); the others are to come.
+Approved 2026-10-29 ([architecture#8](https://github.com/branes-ai/architecture/issues/8)). Amended the same day: the three repos with `docs/plans/` rename it to `docs/plan/`, so every repo uses the singular names (see [One folder convention](#one-folder-convention)). Done: A1, S, D1–D5, E1–E3 and A2 (see [Progress](#progress)); R1 by reflex's own docs-site plan. R2 remains.
 
 Follows the [records-site plan](../records-site/README.md), which published the ADRs and plans of the stack repos and checked them in anatomy, racing-drone and cortex.
 
@@ -116,7 +116,7 @@ Two PRs.
 
 | PR | Repo | Content |
 |---|---|---|
-| **A1** | architecture | The `plans`/`adrs` folders, the byte-order mark, the action's `folders` input, tests; this plan. Merged as #9 |
+| **A1** | architecture | The `plans`/`adrs` folders, the byte-order mark, the action's `folders` input, tests; this plan. Merged as [#9](https://github.com/branes-ai/architecture/pull/9) |
 | **S** | synapse | The records job |
 | **D1–D5** | the five drone repos | `records.yml` |
 | **E1–E3** | auto-drone, embodied-ai-architect, graphs | `docs/plans/` renamed to `docs/plan/`; front matter with the evidence table, titles, the records job |
@@ -126,8 +126,8 @@ Two PRs.
 
 ## Acceptance (stated before any test is run)
 
-1. **Every repo in `sources.yaml` runs the records check in its CI,** strict, and it passes on its default branch: 14 repos, including architecture's own.
-2. **The site lists every `.md` file** under the listed folders of the 14 repos, checked by `check-coverage.sh` against a `find` of the clones. Today that's 72 more files from the three new repos (54 + 3 + 15) and 2 more from reflex.
+1. **Every repo in `sources.yaml` runs the records check in its CI,** strict, and it passes on its default branch: 15 repos, including architecture's own and docs-kit (listed by [#11](https://github.com/branes-ai/architecture/pull/11) after this plan was written; it was 14).
+2. **The site lists every `.md` file** under the listed folders of the 15 repos, checked by `check-coverage.sh` against a `find` of the clones. That's 75 more files from the three new repos (auto-drone 3, embodied-ai-architect 57, graphs 15; this criterion said 72, leaving out auto-drone's 3) and 2 more from reflex.
 3. **The strict build is green, and no record shows unknown.**
 4. **Every status inferred in E1–E3 has its evidence** in the PR's table.
 5. **R1 changes no published page.** The reflex site built after R1 has the same 27 routes as before. Each page's HTML is identical except for the edit link.
@@ -138,6 +138,31 @@ Two PRs.
    - every link from a reflex page to a record reaches the architecture site.
 7. **CI is green, and commitlint is clean,** in every repo touched.
 8. **One folder convention** (added with the amendment, before E1–E3): after A2, no repo in `sources.yaml` has a `docs/plans/` or `docs/adrs/` folder, no file in the three repos names `docs/plans/`, and the collector rejects the plural names: `plans` and `adrs`, each in `sources.yaml` and in `check-records --folders`, fail with an error naming `plan` or `adr`. A test covers each of the four.
+
+## Progress
+
+| PR | Merged as |
+|---|---|
+| A1 | architecture [#9](https://github.com/branes-ai/architecture/pull/9) |
+| S | synapse [#72](https://github.com/branes-ai/synapse/pull/72) |
+| D1–D5 | [scout-drone#1](https://github.com/branes-ai/scout-drone/pull/1), [isr-drone#1](https://github.com/branes-ai/isr-drone/pull/1), [nano-drone#1](https://github.com/branes-ai/nano-drone/pull/1), [interceptor-drone#1](https://github.com/branes-ai/interceptor-drone/pull/1), [counter-uas#1](https://github.com/branes-ai/counter-uas/pull/1) |
+| E1 | [auto-drone#24](https://github.com/branes-ai/auto-drone/pull/24), after [auto-drone#25](https://github.com/branes-ai/auto-drone/pull/25) fixed its macOS build |
+| E2 | [graphs#353](https://github.com/branes-ai/graphs/pull/353) |
+| E3 | [embodied-ai-architect#240](https://github.com/branes-ai/embodied-ai-architect/pull/240) |
+| R1 | Done another way: [reflex#51](https://github.com/branes-ai/reflex/pull/51), reflex's own docs-site plan, moved the 27 pages to `docs/` and generates the site with docs-kit v0.2.1 instead of a `sync-docs.mjs`. Its check: 25 pages byte-identical and 2 differing only by updated paths, every old route kept |
+| A2 | `sources.yaml` lists auto-drone, embodied-ai-architect and graphs; `plans` and `adrs` are rejected |
+| R2 | To come |
+
+**The acceptance after A2,** built from each repo's `main`:
+
+1. 14 of the 15 repos run the records check on `main`, and it passes. reflex has no records job yet; that's R2.
+2. `collect.mjs --strict`: 126 pages (120 records) from 15 repos. `check-coverage.sh` matches every repo, the three new ones at 3, 57 and 15. reflex has 1 (its docs-site plan); R2's 2 are to come.
+3. The strict build is green, with 0 warnings, and no record shows unknown. The site builds, and `check-site-links.mjs` finds 0 broken internal links.
+4. The evidence tables are in auto-drone#24, graphs#353 and embodied-ai-architect#240.
+5. Not met as written. reflex#51's check, above, found every route kept and 25 of the 27 pages byte-identical, but the other 2 differ by updated paths, where this criterion allows only the edit link.
+6. With R2.
+7. Green in every repo touched so far.
+8. No repo in `sources.yaml` has a `docs/plans/` or `docs/adrs/` folder, and no file in the three repos names either path. `plans` and `adrs` fail in `sources.yaml` and in `check-records --folders`, each with an error naming `plan` or `adr`, with a test for each of the four.
 
 ## Risks
 

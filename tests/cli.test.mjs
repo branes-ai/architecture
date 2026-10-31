@@ -89,31 +89,37 @@ test('check-records: passes a good repo, fails a bad one with annotations', () =
 
 test('check-records --folders: checks the named folders of an unlisted repo', () => {
   const root = tempDir();
-  const dir = makeRepo(root, 'four', { 'docs/plans/p.md': plan('Plan P'), 'docs/plans/q.md': '# Q\n', 'docs/plan/ignored.md': '# not checked\n' });
-  const r = node('check-records.mjs', ['--dir', dir, '--strict', '--folders', 'plans']);
+  const dir = makeRepo(root, 'four', { 'docs/plan/p.md': plan('Plan P'), 'docs/plan/q.md': '# Q\n', 'docs/adr/ignored.md': '# not checked\n' });
+  const r = node('check-records.mjs', ['--dir', dir, '--strict', '--folders', 'plan']);
   assert.equal(r.status, 1);
-  assert.match(r.stderr, /four\/docs\/plans\/q\.md:1: error: plan has no front matter status/);
-  assert.match(r.stdout, /check-records: four: 2 records in docs\/plans\/; 1 error\(s\), 0 warning\(s\)/);
+  assert.match(r.stderr, /four\/docs\/plan\/q\.md:1: error: plan has no front matter status/);
+  assert.match(r.stdout, /check-records: four: 2 records in docs\/plan\/; 1 error\(s\), 0 warning\(s\)/);
   const bad = node('check-records.mjs', ['--dir', dir, '--folders', '../x']);
   assert.equal(bad.status, 1);
   assert.match(bad.stderr, /--folders: not folder names: \.\.\/x/);
 });
 
-test('collect: a plans/ folder is listed under Plans, with its statuses', () => {
-  const root = tempDir();
-  makeRepo(root, 'five', { 'docs/plans/p.md': plan('Plan P', '', 'complete') });
-  const sources = path.join(root, 'sources.yaml');
-  fs.writeFileSync(sources, 'repos:\n  - { name: five, folders: [plans] }\n');
-  const site = path.join(root, 'site-src');
-  const r = node('collect.mjs', ['--local-root', root, '--sources', sources, '--site', site, '--strict']);
-  assert.equal(r.status, 0, r.stderr);
-  const sidebar = JSON.parse(fs.readFileSync(path.join(site, 'generated', 'sidebar.json'), 'utf8'));
-  assert.deepEqual(sidebar[3].items[1].items.map((i) => [i.label, i.link, i.badge.text]), [['Plan P', '/five/plans/p/', 'Complete']]);
-  const repoPage = fs.readFileSync(path.join(site, 'content', 'docs', 'five', 'index.md'), 'utf8');
-  assert.match(repoPage, /## Plans\n\n### Complete\n/);
-  const plans = fs.readFileSync(path.join(site, 'content', 'docs', 'plans.md'), 'utf8');
-  assert.match(plans, /## Complete \(1\)/);
-});
+for (const [plural, singular] of [['plans', 'plan'], ['adrs', 'adr']]) {
+  test(`check-records --folders ${plural}: an error naming ${singular}`, () => {
+    const root = tempDir();
+    const dir = makeRepo(root, 'six', { [`docs/${plural}/x.md`]: plan('X') });
+    const r = node('check-records.mjs', ['--dir', dir, '--folders', `adr,${plural},plan`]);
+    assert.equal(r.status, 1);
+    assert.match(r.stderr, new RegExp(`^check-records: --folders: folder "${plural}" is not used: records go in docs/${singular}/ \\(folder "${singular}"\\)\n$`));
+    assert.equal(r.stdout, '');
+  });
+
+  test(`sources.yaml: folder ${plural} is an error naming ${singular}`, () => {
+    const { root, site } = fixture();
+    const sources = path.join(root, 'plural-sources.yaml');
+    fs.writeFileSync(sources, `repos:\n  - { name: one, folders: [adr, plan] }\n  - { name: two, folders: [${plural}] }\n`);
+    const r = node('collect.mjs', ['--local-root', root, '--sources', sources, '--site', site]);
+    assert.equal(r.status, 1);
+    assert.match(r.stderr, new RegExp(`repos\\[1\\]: folder "${plural}" is not used: records go in docs/${singular}/ \\(folder "${singular}"\\)`));
+    assert.doesNotMatch(r.stderr, /repos\[0\]/);
+    assert.equal(fs.existsSync(site), false);
+  });
+}
 
 test('sources.yaml: a repo listed twice, or with no folders, is an error', () => {
   const { root, site } = fixture();

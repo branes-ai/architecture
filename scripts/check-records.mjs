@@ -13,7 +13,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkRoutes, loadPages, openSource } from './lib/repo.mjs';
 import { indexPages, rewriteBody } from './lib/links.mjs';
-import { FOLDER, readSources } from './lib/sources.mjs';
+import { FOLDER, pluralFolder, readSources } from './lib/sources.mjs';
 import { report } from './lib/report.mjs';
 
 const REPO_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -38,6 +38,8 @@ function main() {
   const folders = only ?? listed?.folders ?? ['adr', 'plan'];
   const bad = folders.filter((f) => !FOLDER.test(f));
   if (folders.length === 0 || bad.length) throw new Error(`--folders: not folder names: ${bad.join(', ') || '(none)'}`);
+  const plural = folders.map(pluralFolder).filter(Boolean);
+  if (plural.length) throw new Error(`--folders: ${plural.join('; ')}`);
   const source = openSource(name, dir);
   const { pages, diagnostics } = loadPages(source, folders, { strict });
   checkRoutes(pages, diagnostics);

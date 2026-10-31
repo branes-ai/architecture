@@ -60,7 +60,7 @@ records:
         strict: 'true'
 ```
 
-A repo not yet in `sources.yaml` names its folders: `folders: plans`. A `plans/` folder holds plans and an `adrs/` folder ADRs, as `plan/` and `adr/` do.
+A repo not yet in `sources.yaml` names its folders with the action's `folders` input. The records folders are `docs/adr/` and `docs/plan/`, in every repo; `plans` and `adrs` are errors, in `sources.yaml` and in `folders`.
 
 ## Working on it
 

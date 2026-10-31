@@ -7,6 +7,12 @@ import { parse } from 'yaml';
 const NAME = /^[A-Za-z0-9_.-]+$/;
 export const FOLDER = /^[a-z0-9][a-z0-9-]*$/;
 
+/** The records folders are singular (docs/plan/records-coverage): `plans`
+ *  and `adrs` are errors that name the folder to use, or null for any other. */
+const SINGULAR = { plans: 'plan', adrs: 'adr' };
+export const pluralFolder = (f) =>
+  Object.hasOwn(SINGULAR, f) ? `folder "${f}" is not used: records go in docs/${SINGULAR[f]}/ (folder "${SINGULAR[f]}")` : null;
+
 /** Reads and checks sources.yaml. Returns [{ name, folders }], in file order;
  *  throws with every problem found. */
 export function readSources(file) {
@@ -26,6 +32,8 @@ export function readSources(file) {
       problems.push(`${where}: "folders" is not a non-empty list of folder names`);
     } else if (new Set(folders).size !== folders.length) {
       problems.push(`${where}: "folders" lists a folder twice`);
+    } else {
+      for (const msg of folders.map(pluralFolder).filter(Boolean)) problems.push(`${where}: ${msg}`);
     }
     const extra = Object.keys(r ?? {}).filter((k) => k !== 'name' && k !== 'folders');
     if (extra.length) problems.push(`${where}: unknown key(s) ${extra.join(', ')}`);
