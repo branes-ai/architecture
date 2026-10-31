@@ -155,7 +155,7 @@ Two PRs.
 
 **The acceptance after R2,** built from each repo's `main` on 2026-10-30:
 
-1. All 15 repos run the records check on `main`, and it passes. In docs-kit and synapse, `main` is a release commit, which runs no CI; the check passed on the commit before it.
+1. All 15 repos run the records check in CI, and it passes for what is on `main`. In 13 repos it ran on `main`'s head. In docs-kit and synapse, `main`'s head is a release commit, which runs no CI. The check passed on the commit before it, and the release commit changes only the version files and the CHANGELOG: `docs/` and `ci.yml` are the same trees. The strict collect in 2, which makes the same checks, read both repos at `main`'s head.
 2. `collect.mjs --strict`: 128 pages (121 records) from 15 repos. `check-coverage.sh` matches every repo, the three new ones at 3, 57 and 15, and reflex at 3: its docs-site plan, plus R2's ADR README and animation plan.
 3. The strict build is green, with 0 warnings, and no record shows unknown. The site builds, and `check-site-links.mjs` finds 0 broken internal links in 20969.
 4. The evidence tables are in auto-drone#24, graphs#353 and embodied-ai-architect#240.
