@@ -1,10 +1,10 @@
 ---
-status: in-progress
+status: complete
 issue: branes-ai/architecture#8
 ---
 # Plan: every repo's records on the site, and checked in its CI
 
-Approved 2026-10-29 ([architecture#8](https://github.com/branes-ai/architecture/issues/8)). Amended the same day: the three repos with `docs/plans/` rename it to `docs/plan/`, so every repo uses the singular names (see [One folder convention](#one-folder-convention)). Done: A1, S, D1–D5, E1–E3 and A2 (see [Progress](#progress)); R1 by reflex's own docs-site plan. R2 remains.
+Approved 2026-10-29 ([architecture#8](https://github.com/branes-ai/architecture/issues/8)). Amended the same day: the three repos with `docs/plans/` rename it to `docs/plan/`, so every repo uses the singular names (see [One folder convention](#one-folder-convention)). Amended 2026-10-30: acceptance 5 allows the paths that R1 updated. Complete: every PR is merged (see [Progress](#progress)), R1 by reflex's own docs-site plan.
 
 Follows the [records-site plan](../records-site/README.md), which published the ADRs and plans of the stack repos and checked them in anatomy, racing-drone and cortex.
 
@@ -130,7 +130,7 @@ Two PRs.
 2. **The site lists every `.md` file** under the listed folders of the 15 repos, checked by `check-coverage.sh` against a `find` of the clones. That's 75 more files from the three new repos (auto-drone 3, embodied-ai-architect 57, graphs 15; this criterion said 72, leaving out auto-drone's 3) and 2 more from reflex.
 3. **The strict build is green, and no record shows unknown.**
 4. **Every status inferred in E1–E3 has its evidence** in the PR's table.
-5. **R1 changes no published page.** The reflex site built after R1 has the same 27 routes as before. Each page's HTML is identical except for the edit link.
+5. **R1 changes no published page.** The reflex site built after R1 has the same 27 routes as before. Each page's HTML is identical except for the edit link and the paths that the move updated. (Amended 2026-10-30, after R1's check: as first written, it allowed only the edit link.)
 6. **After R2:**
    - the reflex site has no page from `adr/`, `plan/` or `sessions/`;
    - `assessments/animation` is published there;
@@ -151,17 +151,21 @@ Two PRs.
 | E3 | [embodied-ai-architect#240](https://github.com/branes-ai/embodied-ai-architect/pull/240) |
 | R1 | Done another way: [reflex#51](https://github.com/branes-ai/reflex/pull/51), reflex's own docs-site plan, moved the 27 pages to `docs/` and generates the site with docs-kit v0.2.1 instead of a `sync-docs.mjs`. Its check: 25 pages byte-identical and 2 differing only by updated paths, every old route kept |
 | A2 | `sources.yaml` lists auto-drone, embodied-ai-architect and graphs; `plans` and `adrs` are rejected |
-| R2 | To come |
+| R2 | [reflex#56](https://github.com/branes-ai/reflex/pull/56) |
 
-**The acceptance after A2,** built from each repo's `main`:
+**The acceptance after R2,** built from each repo's `main` on 2026-10-30:
 
-1. 14 of the 15 repos run the records check on `main`, and it passes. reflex has no records job yet; that's R2.
-2. `collect.mjs --strict`: 126 pages (120 records) from 15 repos. `check-coverage.sh` matches every repo, the three new ones at 3, 57 and 15. reflex has 1 (its docs-site plan); R2's 2 are to come.
-3. The strict build is green, with 0 warnings, and no record shows unknown. The site builds, and `check-site-links.mjs` finds 0 broken internal links.
+1. All 15 repos run the records check in CI, and it passes for what is on `main`. In 13 repos it ran on `main`'s head. In docs-kit and synapse, `main`'s head is a release commit, which runs no CI. The check passed on the commit before it, and the release commit changes only the version files and the CHANGELOG: `docs/` and `ci.yml` are the same trees. The strict collect in 2, which makes the same checks, read both repos at `main`'s head.
+2. `collect.mjs --strict`: 128 pages (121 records) from 15 repos. `check-coverage.sh` matches every repo, the three new ones at 3, 57 and 15, and reflex at 3: its docs-site plan, plus R2's ADR README and animation plan.
+3. The strict build is green, with 0 warnings, and no record shows unknown. The site builds, and `check-site-links.mjs` finds 0 broken internal links in 20969.
 4. The evidence tables are in auto-drone#24, graphs#353 and embodied-ai-architect#240.
-5. Not met as written. reflex#51's check, above, found every route kept and 25 of the 27 pages byte-identical, but the other 2 differ by updated paths, where this criterion allows only the edit link.
-6. With R2.
-7. Green in every repo touched so far.
+5. Met, as amended. reflex#51's check, above, found every route kept and 25 of the 27 pages byte-identical; the other 2 differ by updated paths.
+6. Met. On the reflex site:
+   - `/reflex/adr/` and `/reflex/plan/animation/` are redirects to the architecture site, not pages, and `/reflex/sessions/` doesn't exist;
+   - `/reflex/assessments/animation/` is published;
+   - the animation plan is collected with status `in-progress` (the site lists it from its next deploy);
+   - the two links from a reflex page to a record (the standards page to the plan, the overview to the ADRs) go to the architecture site.
+7. Green in every repo touched.
 8. No repo in `sources.yaml` has a `docs/plans/` or `docs/adrs/` folder, and no file in the three repos names either path. `plans` and `adrs` fail in `sources.yaml` and in `check-records --folders`, each with an error naming `plan` or `adr`, with a test for each of the four.
 
 ## Risks
