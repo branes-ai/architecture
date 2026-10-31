@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { adrMeta, parseDoc, parseFrontMatter, planMeta, proseStatusLine, routeOf } from '../scripts/lib/parse.mjs';
-import { classify, kindOf } from '../scripts/lib/repo.mjs';
+import { classify } from '../scripts/lib/repo.mjs';
 
 test('routeOf: a README is its folder; each segment is slugified', () => {
   assert.equal(routeOf('racing-drone', 'plan/b0/README.md'), '/racing-drone/plan/b0/');
@@ -18,10 +18,6 @@ test('classify: intro, record, attachment, template', () => {
   assert.equal(classify('b0/README.md'), 'record');
   assert.equal(classify('b0/notes.md'), 'attachment');
   assert.equal(classify('template.md'), 'skip');
-});
-
-test('kindOf: plans/ holds plans and adrs/ ADRs; other folders their own kind', () => {
-  assert.deepEqual(['plan', 'plans', 'adr', 'adrs', 'arch'].map(kindOf), ['plan', 'plan', 'adr', 'adr', 'arch']);
 });
 
 test('front matter: none, valid, quoted, commented', () => {

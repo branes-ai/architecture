@@ -10,7 +10,8 @@
 #
 # The folders checked are `folders`, else the repo's in sources.yaml at that
 # commit, else adr and plan. `folders` lets a repo check its records before it
-# is listed (for example `folders: plans`). It sets up Node 22 for its own scripts.
+# is listed. The records folders are adr and plan: `plans` and `adrs` are
+# errors. It sets up Node 22 for its own scripts.
 name: Check architecture records
 description: Checks the repo's ADRs and plans (status, titles, links) as the architecture site does.
 inputs:
